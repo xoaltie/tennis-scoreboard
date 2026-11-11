@@ -29,7 +29,7 @@ java {
 
 gretty {
     servletContainer = 'tomcat11'
-    contextPath = '/api'
+    contextPath = '/'
     managedClassReload = true
 }
 

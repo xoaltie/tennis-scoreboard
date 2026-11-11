@@ -34,3 +34,5 @@ bin/
 .DS_Store
 
 flyway.conf
+
+.env.local
