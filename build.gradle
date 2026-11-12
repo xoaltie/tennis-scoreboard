@@ -29,8 +29,8 @@ java {
 
 gretty {
     servletContainer = 'tomcat11'
-    contextPath = '/'
-    managedClassReload = true
+    contextPath = '/api'
+    setScanInterval(5)
 }
 
 dependencies {

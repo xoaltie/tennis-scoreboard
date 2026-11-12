@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS players
+(
+    id   bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name text UNIQUE NOT NULL
+);
