@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS matches
     winner_id  bigint NOT NULL REFERENCES players (id)
 );
 
-CREATE INDEX player1_id_idx ON matches (player1_id);
-CREATE INDEX player2_id_idx ON matches (player2_id);
+CREATE INDEX idx_match_player1_id ON matches (player1_id);
+CREATE INDEX idx_match_player2_id ON matches (player2_id);

@@ -1,8 +1,10 @@
 package com.github.xoaltie.tennisscoreboard.mapper;
 
+import com.github.xoaltie.tennisscoreboard.dto.request.MatchFindRequestDto;
 import com.github.xoaltie.tennisscoreboard.dto.response.MatchListResponseDto;
 import com.github.xoaltie.tennisscoreboard.dto.response.MatchResponseDto;
 import com.github.xoaltie.tennisscoreboard.entity.Match;
+import com.github.xoaltie.tennisscoreboard.service.command.MatchFindCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.MatchResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,6 +24,8 @@ public interface MatchMapper {
     MatchResult toResult(Match match);
 
     List<MatchResult> toResults(List<Match> matches);
+
+    MatchFindCommand toCommand(MatchFindRequestDto dto);
 
     default MatchListResponseDto toListResponse(List<MatchResult> matchesResults) {
         return new MatchListResponseDto(toDtoList(matchesResults));
