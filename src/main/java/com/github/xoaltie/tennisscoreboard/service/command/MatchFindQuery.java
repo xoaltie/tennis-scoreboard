@@ -1,8 +1,8 @@
 package com.github.xoaltie.tennisscoreboard.service.command;
 
-public record MatchFindCommand(String playerName, Integer page) {
+public record MatchFindQuery(String playerName, Integer page) {
 
-    public MatchFindCommand {
+    public MatchFindQuery {
         if (page == null || page < 1) {
             page = 1;
         }

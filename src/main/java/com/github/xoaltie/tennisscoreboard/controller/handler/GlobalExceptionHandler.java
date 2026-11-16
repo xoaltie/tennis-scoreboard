@@ -1,6 +1,7 @@
 package com.github.xoaltie.tennisscoreboard.controller.handler;
 
 import com.github.xoaltie.tennisscoreboard.dto.response.ErrorResponseDto;
+import com.github.xoaltie.tennisscoreboard.exception.IdenticalPlayerNamesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,8 +13,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDto handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return new ErrorResponseDto(
-                e.getFieldErrors().getFirst().getDefaultMessage()
-        );
+        return new ErrorResponseDto("%s: %s".formatted(e.getFieldErrors().getFirst().getField(), e.getFieldErrors().getFirst().getDefaultMessage()));
+    }
+
+    @ExceptionHandler(IdenticalPlayerNamesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDto handleIdenticalPlayersNameException(IdenticalPlayerNamesException e) {
+        return new ErrorResponseDto(e.getMessage());
     }
 }
