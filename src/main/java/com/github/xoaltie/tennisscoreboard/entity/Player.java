@@ -9,6 +9,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "players")
 @Getter
@@ -20,6 +22,11 @@ public class Player {
 
     @Column(nullable = false, unique = true, columnDefinition = "citext")
     private String name;
+
+    public Player(String name) {
+        Objects.requireNonNull(name, "player name must not be null");
+        this.name = name;
+    }
 
     protected Player() {
     }

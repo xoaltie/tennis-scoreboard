@@ -11,6 +11,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "matches")
 @Getter
@@ -31,6 +33,16 @@ public class Match {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id", nullable = false)
     private Player winner;
+
+    public Match(Player firstPlayer, Player secondPlayer, Player winner) {
+        Objects.requireNonNull(firstPlayer, "first player must not be null");
+        Objects.requireNonNull(secondPlayer, "second player must not be null");
+        Objects.requireNonNull(winner, "winner must not be null");
+
+        this.firstPlayer = firstPlayer;
+        this.secondPlayer = secondPlayer;
+        this.winner = winner;
+    }
 
     protected Match() {
     }

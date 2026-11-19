@@ -79,4 +79,11 @@ public class MatchRepositoryImpl implements MatchRepository {
                 .getSingleResult()
                 .intValue();
     }
+
+    @Override
+    public void save(Match match) {
+        Objects.requireNonNull(match, "match must not be null");
+        sessionFactory.getCurrentSession()
+                .persist(match);
+    }
 }

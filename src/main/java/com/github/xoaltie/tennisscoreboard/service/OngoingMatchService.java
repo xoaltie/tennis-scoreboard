@@ -2,21 +2,29 @@ package com.github.xoaltie.tennisscoreboard.service;
 
 import com.github.xoaltie.tennisscoreboard.domain.OngoingMatch;
 import com.github.xoaltie.tennisscoreboard.exception.IdenticalPlayerNamesException;
+import com.github.xoaltie.tennisscoreboard.exception.OngoingMatchNotFoundException;
 import com.github.xoaltie.tennisscoreboard.mapper.OngoingMatchMapper;
+import com.github.xoaltie.tennisscoreboard.service.command.MatchCreateCommand;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchCreateCommand;
+import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
+import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchPlayerResult;
+import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchResult;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OngoingMatchService {
+    private final FinishedMatchService finishedMatchService;
     private final OngoingMatchMapper mapper;
     private final ConcurrentHashMap<UUID, OngoingMatch> matches = new ConcurrentHashMap<>();
 
-    public OngoingMatchService(OngoingMatchMapper mapper) {
+    public OngoingMatchService(FinishedMatchService finishedMatchService, OngoingMatchMapper mapper) {
+        this.finishedMatchService = finishedMatchService;
         this.mapper = mapper;
     }
 
@@ -30,9 +38,50 @@ public class OngoingMatchService {
                     .formatted(firstPlayerName, secondPlayerName));
         }
 
-        OngoingMatch newMatch = new OngoingMatch();
+        OngoingMatch newMatch = new OngoingMatch(firstPlayerName, secondPlayerName);
         matches.put(newMatch.getId(), newMatch);
 
         return new OngoingMatchCreateResult(newMatch.getId());
+    }
+
+    public OngoingMatchResult scorePoint(OngoingMatchScorePointCommand pointCommand) {
+        Objects.requireNonNull(pointCommand, "match score point command must not be null");
+
+        OngoingMatch match = matches.get(pointCommand.id());
+        if (match == null) {
+            throw new OngoingMatchNotFoundException("match with uuid '%s' not found".formatted(pointCommand.id()));
+        }
+
+        match.scorePoint(pointCommand.playerName());
+
+        Optional<String> winnerName = match.getWinnerName();
+        if (winnerName.isPresent()) {
+            MatchCreateCommand createCommand = new MatchCreateCommand(
+                    match.getFirstPlayerName(),
+                    match.getSecondPlayerName(),
+                    winnerName.get()
+            );
+            finishedMatchService.save(createCommand);
+            matches.remove(pointCommand.id());
+        }
+
+        OngoingMatchPlayerResult firstPlayer = new OngoingMatchPlayerResult(
+                match.getFirstPlayerName(),
+                match.getPlayer1Point(),
+                match.getPlayer1Game(),
+                match.getPlayer1Set()
+        );
+        OngoingMatchPlayerResult secondPlayer = new OngoingMatchPlayerResult(
+                match.getSecondPlayerName(),
+                match.getPlayer2Point(),
+                match.getPlayer2Game(),
+                match.getPlayer2Set()
+        );
+
+        return new OngoingMatchResult(
+                firstPlayer,
+                secondPlayer,
+                winnerName.orElse(null)
+        );
     }
 }

@@ -2,22 +2,29 @@ package com.github.xoaltie.tennisscoreboard.controller;
 
 import com.github.xoaltie.tennisscoreboard.dto.request.MatchFindRequestDto;
 import com.github.xoaltie.tennisscoreboard.dto.request.OngoingMatchCreateRequestDto;
+import com.github.xoaltie.tennisscoreboard.dto.request.OngoingMatchPointRequestDto;
 import com.github.xoaltie.tennisscoreboard.dto.response.MatchPageResponseDto;
+import com.github.xoaltie.tennisscoreboard.dto.response.OngoingMatchCreateResponseDto;
 import com.github.xoaltie.tennisscoreboard.dto.response.OngoingMatchResponseDto;
 import com.github.xoaltie.tennisscoreboard.mapper.FinishedMatchMapper;
 import com.github.xoaltie.tennisscoreboard.mapper.OngoingMatchMapper;
 import com.github.xoaltie.tennisscoreboard.service.FinishedMatchService;
 import com.github.xoaltie.tennisscoreboard.service.OngoingMatchService;
+import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.MatchPageResult;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
+import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/matches")
@@ -43,8 +50,16 @@ public class MatchController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OngoingMatchResponseDto create(@Validated @RequestBody OngoingMatchCreateRequestDto dto) {
+    public OngoingMatchCreateResponseDto create(@Validated @RequestBody OngoingMatchCreateRequestDto dto) {
         OngoingMatchCreateResult ongoingMatchCreateResult = ongoingMatchService.create(ongoingMatchMapper.toCreateCommand(dto));
-        return ongoingMatchMapper.toOngoingMatchResponse(ongoingMatchCreateResult);
+        return ongoingMatchMapper.toCreateResponse(ongoingMatchCreateResult);
+    }
+
+    @PostMapping("/{uuid}/point")
+    @ResponseStatus(HttpStatus.OK)
+    public OngoingMatchResponseDto point(@PathVariable UUID uuid, @Validated @RequestBody OngoingMatchPointRequestDto dto) {
+        OngoingMatchScorePointCommand command = ongoingMatchMapper.toPointCommand(uuid, dto);
+        OngoingMatchResult match = ongoingMatchService.scorePoint(command);
+        return ongoingMatchMapper.toResponseDto(match);
     }
 }
