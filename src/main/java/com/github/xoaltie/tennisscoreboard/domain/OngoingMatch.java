@@ -1,5 +1,6 @@
 package com.github.xoaltie.tennisscoreboard.domain;
 
+import com.github.xoaltie.tennisscoreboard.exception.IdenticalPlayerNamesException;
 import com.github.xoaltie.tennisscoreboard.exception.PlayerNotPartOfMatchException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,18 +24,39 @@ public class OngoingMatch {
     private int player2Set;
 
     public OngoingMatch(String firstPlayerName, String secondPlayerName) {
+        this(firstPlayerName, secondPlayerName, Point.LOVE, Point.LOVE, 0, 0, 0, 0);
+    }
+
+    OngoingMatch(String firstPlayerName, String secondPlayerName, Point player1Point, Point player2Point) {
+        this(firstPlayerName, secondPlayerName, player1Point, player2Point, 0, 0, 0, 0);
+    }
+
+    OngoingMatch(String firstPlayerName, String secondPlayerName, Point player1Point, Point player2Point, int player1Game, int player2Game) {
+        this(firstPlayerName, secondPlayerName, player1Point, player2Point, player1Game, player2Game, 0, 0);
+    }
+
+    OngoingMatch(String firstPlayerName, String secondPlayerName, Point player1Point, Point player2Point, int player1Game, int player2Game, int player1Set, int player2Set) {
         Objects.requireNonNull(firstPlayerName, "first player name must not be null");
         Objects.requireNonNull(secondPlayerName, "second player name must not be null");
+
+        if (firstPlayerName.equalsIgnoreCase(secondPlayerName)) {
+            throw new IdenticalPlayerNamesException("player names must be different, provided names: first player - %s, second player - %s"
+                    .formatted(firstPlayerName, secondPlayerName));
+        }
 
         this.id = UUID.randomUUID();
         this.firstPlayerName = firstPlayerName;
         this.secondPlayerName = secondPlayerName;
-
-        this.player1Point = Point.LOVE;
-        this.player2Point = Point.LOVE;
+        this.player1Point = player1Point;
+        this.player2Point = player2Point;
+        this.player1Game = player1Game;
+        this.player2Game = player2Game;
+        this.player1Set = player1Set;
+        this.player2Set = player2Set;
     }
 
     public void scorePoint(String playerName) {
+        Objects.requireNonNull(playerName, "player name must not be null");
         validatePlayer(playerName);
 
         // TODO: так бл, не могу понять как это сделать сразу

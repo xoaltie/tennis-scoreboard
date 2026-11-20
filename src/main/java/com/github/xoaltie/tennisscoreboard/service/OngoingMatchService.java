@@ -33,11 +33,6 @@ public class OngoingMatchService {
         String firstPlayerName = command.firstPlayerName();
         String secondPlayerName = command.secondPlayerName();
 
-        if (firstPlayerName.equalsIgnoreCase(secondPlayerName)) {
-            throw new IdenticalPlayerNamesException("player names must be different, provided names: first player - %s, second player - %s"
-                    .formatted(firstPlayerName, secondPlayerName));
-        }
-
         OngoingMatch newMatch = new OngoingMatch(firstPlayerName, secondPlayerName);
         matches.put(newMatch.getId(), newMatch);
 
