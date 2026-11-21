@@ -1,7 +1,6 @@
 package com.github.xoaltie.tennisscoreboard.service;
 
 import com.github.xoaltie.tennisscoreboard.domain.OngoingMatch;
-import com.github.xoaltie.tennisscoreboard.exception.IdenticalPlayerNamesException;
 import com.github.xoaltie.tennisscoreboard.exception.OngoingMatchNotFoundException;
 import com.github.xoaltie.tennisscoreboard.mapper.OngoingMatchMapper;
 import com.github.xoaltie.tennisscoreboard.service.command.MatchCreateCommand;
@@ -60,17 +59,19 @@ public class OngoingMatchService {
             matches.remove(pointCommand.id());
         }
 
+        String firstPlayerName = match.getFirstPlayerName();
+        String secondPlayerName = match.getSecondPlayerName();
         OngoingMatchPlayerResult firstPlayer = new OngoingMatchPlayerResult(
-                match.getFirstPlayerName(),
-                match.getPlayer1Point(),
-                match.getPlayer1Game(),
-                match.getPlayer1Set()
+                firstPlayerName,
+                match.getPoints(firstPlayerName),
+                match.getGames(firstPlayerName),
+                match.getSets(firstPlayerName)
         );
         OngoingMatchPlayerResult secondPlayer = new OngoingMatchPlayerResult(
-                match.getSecondPlayerName(),
-                match.getPlayer2Point(),
-                match.getPlayer2Game(),
-                match.getPlayer2Set()
+                secondPlayerName,
+                match.getPoints(secondPlayerName),
+                match.getGames(secondPlayerName),
+                match.getSets(secondPlayerName)
         );
 
         return new OngoingMatchResult(
