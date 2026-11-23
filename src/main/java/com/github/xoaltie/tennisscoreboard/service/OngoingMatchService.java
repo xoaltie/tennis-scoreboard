@@ -45,19 +45,26 @@ public class OngoingMatchService {
             throw new OngoingMatchNotFoundException("match with uuid '%s' not found".formatted(pointCommand.id()));
         }
 
-        match.scorePoint(pointCommand.playerName());
+        synchronized (match) {
+            Optional<String> winnerName = match.getWinnerName();
+            if (winnerName.isPresent()) {
+                throw new OngoingMatchNotFoundException("match with uuid '%s' not found".formatted(pointCommand.id()));
+            }
 
-        Optional<String> winnerName = match.getWinnerName();
-        if (winnerName.isPresent()) {
-            MatchCreateCommand createCommand = new MatchCreateCommand(
-                    match.getFirstPlayerName(),
-                    match.getSecondPlayerName(),
-                    winnerName.get()
-            );
-            finishedMatchService.save(createCommand);
-            matches.remove(pointCommand.id());
+            match.scorePoint(pointCommand.playerName());
+
+            winnerName = match.getWinnerName();
+            if (winnerName.isPresent()) {
+                MatchCreateCommand createCommand = new MatchCreateCommand(
+                        match.getFirstPlayerName(),
+                        match.getSecondPlayerName(),
+                        winnerName.get()
+                );
+                matches.remove(pointCommand.id());
+                finishedMatchService.save(createCommand);
+            }
+
+            return mapper.toResult(match);
         }
-
-        return mapper.toResult(match);
     }
 }
