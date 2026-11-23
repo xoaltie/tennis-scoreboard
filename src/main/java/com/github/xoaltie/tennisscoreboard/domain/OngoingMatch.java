@@ -63,10 +63,6 @@ public class OngoingMatch {
         }
     }
 
-    private String resolveWinnerName(Player player) {
-        return player == Player.FIRST ? firstPlayerName : secondPlayerName;
-    }
-
     private Player resolvePlayer(String playerName) {
         Objects.requireNonNull(playerName, "player name must not be null");
         if (playerName.equalsIgnoreCase(firstPlayerName)) {
@@ -96,5 +92,9 @@ public class OngoingMatch {
     public Optional<String> getWinnerName() {
         return Optional.ofNullable(winner)
                 .map(this::resolveWinnerName);
+    }
+
+    private String resolveWinnerName(Player player) {
+        return player == Player.FIRST ? firstPlayerName : secondPlayerName;
     }
 }
