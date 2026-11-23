@@ -18,6 +18,20 @@ class SetTest {
     }
 
     @Test
+    @DisplayName("should throw exception when creating set with negative first player games")
+    void constructor_negativeFirstPlayerGames_throwsException() {
+        assertThatThrownBy(() -> new Set(-1, 0, new RegularGame(), null))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("should throw exception when creating set with negative second player games")
+    void constructor_negativeSecondPlayerGames_throwsException() {
+        assertThatThrownBy(() -> new Set(0, -1, new RegularGame(), null))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("should throw exception when creating set without game")
     void constructor_withoutGame_throwsException() {
         assertThatThrownBy(() -> new Set(0, 0, null, null))
@@ -87,6 +101,69 @@ class SetTest {
             softly.assertThat(set.getTiebreakPoints(Player.FIRST)).isEmpty();
             softly.assertThat(set.getTiebreakPoints(Player.SECOND)).isEmpty();
             softly.assertThat(set.getWinner()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("should start tiebreak when games reach six all")
+    void scorePoint_atSixAll_startsTiebreak() {
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
+        Set set = new Set(5, 6, game, null);
+
+        set.scorePoint(Player.FIRST);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(set.getPoints(Player.FIRST)).isEmpty();
+            softly.assertThat(set.getPoints(Player.SECOND)).isEmpty();
+            softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(6);
+            softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(6);
+            softly.assertThat(set.getTiebreakPoints(Player.FIRST)).hasValue(0);
+            softly.assertThat(set.getTiebreakPoints(Player.SECOND)).hasValue(0);
+            softly.assertThat(set.getWinner()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("should not finish set when leading six to five")
+    void scorePoint_atSixToFive_doesNotFinishSet() {
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
+        Set set = new Set(5, 5, game, null);
+
+        set.scorePoint(Player.FIRST);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(6);
+            softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(5);
+            softly.assertThat(set.getWinner()).isEmpty();
+        });
+    }
+
+    @Test
+    @DisplayName("should set winner when player wins set seven to five")
+    void scorePoint_atSevenToFive_setsWinner() {
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
+        Set set = new Set(6, 5, game, null);
+
+        set.scorePoint(Player.FIRST);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(7);
+            softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(5);
+            softly.assertThat(set.getWinner()).hasValue(Player.FIRST);
+        });
+    }
+
+    @Test
+    @DisplayName("should set winner when player wins tiebreak")
+    void scorePoint_atTiebreakSetPoint_setsWinner() {
+        Tiebreak game = new Tiebreak(3, 6, null);
+        Set set = new Set(6, 6, game, null);
+
+        set.scorePoint(Player.SECOND);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(7);
+            softly.assertThat(set.getWinner()).hasValue(Player.SECOND);
         });
     }
 
