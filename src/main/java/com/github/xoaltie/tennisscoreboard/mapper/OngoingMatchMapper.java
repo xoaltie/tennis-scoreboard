@@ -7,6 +7,7 @@ import com.github.xoaltie.tennisscoreboard.dto.request.OngoingMatchPointRequestD
 import com.github.xoaltie.tennisscoreboard.dto.response.OngoingMatchCreateResponseDto;
 import com.github.xoaltie.tennisscoreboard.dto.response.OngoingMatchResponseDto;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchCreateCommand;
+import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchQuery;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchPlayerResult;
@@ -28,6 +29,9 @@ public interface OngoingMatchMapper {
     @Mapping(source = "uuid", target = "id")
     @Mapping(source = "dto.name", target = "playerName")
     OngoingMatchScorePointCommand toPointCommand(UUID uuid, OngoingMatchPointRequestDto dto);
+
+    @Mapping(source = "uuid", target = "id")
+    OngoingMatchQuery toQuery(UUID uuid);
 
     default String mapPointToString(Point points) {
         return points == null ? null : points.getValue();

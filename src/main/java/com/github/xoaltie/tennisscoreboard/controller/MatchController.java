@@ -10,6 +10,7 @@ import com.github.xoaltie.tennisscoreboard.mapper.FinishedMatchMapper;
 import com.github.xoaltie.tennisscoreboard.mapper.OngoingMatchMapper;
 import com.github.xoaltie.tennisscoreboard.service.FinishedMatchService;
 import com.github.xoaltie.tennisscoreboard.service.OngoingMatchService;
+import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchQuery;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.MatchPageResult;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
@@ -46,6 +47,14 @@ public class MatchController {
     public MatchPageResponseDto getAll(@Validated MatchFindRequestDto dto) {
         MatchPageResult matchPageResult = finishedMatchService.getAll(finishedMatchMapper.toFindQuery(dto));
         return finishedMatchMapper.toPageResponseDto(matchPageResult);
+    }
+
+    @GetMapping("/{uuid}")
+    @ResponseStatus(HttpStatus.OK)
+    public OngoingMatchResponseDto get(@PathVariable UUID uuid) {
+        OngoingMatchQuery query = ongoingMatchMapper.toQuery(uuid);
+        OngoingMatchResult match = ongoingMatchService.find(query);
+        return ongoingMatchMapper.toResponseDto(match);
     }
 
     @PostMapping

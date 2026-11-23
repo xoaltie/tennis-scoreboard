@@ -5,6 +5,7 @@ import com.github.xoaltie.tennisscoreboard.exception.OngoingMatchNotFoundExcepti
 import com.github.xoaltie.tennisscoreboard.mapper.OngoingMatchMapper;
 import com.github.xoaltie.tennisscoreboard.service.command.MatchCreateCommand;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchCreateCommand;
+import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchQuery;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchResult;
@@ -24,6 +25,23 @@ public class OngoingMatchService {
     public OngoingMatchService(FinishedMatchService finishedMatchService, OngoingMatchMapper mapper) {
         this.finishedMatchService = finishedMatchService;
         this.mapper = mapper;
+    }
+
+    public OngoingMatchResult find(OngoingMatchQuery query) {
+        Objects.requireNonNull(query, "match query must not be null");
+
+        OngoingMatch match = matches.get(query.id());
+        if (match == null) {
+            throw new OngoingMatchNotFoundException("match with uuid '%s' not found".formatted(query.id()));
+        }
+
+        synchronized (match) {
+            if (match.getWinnerName().isPresent()) {
+                throw new OngoingMatchNotFoundException("match with uuid '%s' not found".formatted(query.id()));
+            }
+
+            return mapper.toResult(match);
+        }
     }
 
     public OngoingMatchCreateResult create(OngoingMatchCreateCommand command) {
