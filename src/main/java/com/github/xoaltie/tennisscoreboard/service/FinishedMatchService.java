@@ -45,8 +45,7 @@ public class FinishedMatchService {
             totalMatches = matchRepository.countByPlayerName(query.playerName());
         }
 
-        // TODO: косячок. page всегда 1, а totalPages может быть 0. нужно привести к консистентному состоянию
-        int totalPages = (int) Math.ceil((double) totalMatches / PAGE_SIZE);
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalMatches / PAGE_SIZE));
 
         List<MatchResult> matchResults = mapper.toResults(matches);
         return mapper.toPageResult(matchResults, page, totalPages);
