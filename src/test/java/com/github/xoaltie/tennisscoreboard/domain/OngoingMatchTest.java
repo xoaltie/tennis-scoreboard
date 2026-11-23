@@ -49,12 +49,14 @@ class OngoingMatchTest {
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(match.getFirstPlayerName()).isEqualTo(FIRST_PLAYER_NAME);
             softly.assertThat(match.getSecondPlayerName()).isEqualTo(SECOND_PLAYER_NAME);
-            softly.assertThat(match.getPoints(FIRST_PLAYER_NAME)).isEqualTo(Point.LOVE);
-            softly.assertThat(match.getPoints(SECOND_PLAYER_NAME)).isEqualTo(Point.LOVE);
+            softly.assertThat(match.getPoints(FIRST_PLAYER_NAME)).hasValue(Point.LOVE);
+            softly.assertThat(match.getPoints(SECOND_PLAYER_NAME)).hasValue(Point.LOVE);
             softly.assertThat(match.getGames(FIRST_PLAYER_NAME)).isEqualTo(0);
             softly.assertThat(match.getGames(SECOND_PLAYER_NAME)).isEqualTo(0);
             softly.assertThat(match.getSets(FIRST_PLAYER_NAME)).isEqualTo(0);
             softly.assertThat(match.getSets(SECOND_PLAYER_NAME)).isEqualTo(0);
+            softly.assertThat(match.getTiebreakPoints(FIRST_PLAYER_NAME)).isEmpty();
+            softly.assertThat(match.getTiebreakPoints(SECOND_PLAYER_NAME)).isEmpty();
             softly.assertThat(match.getWinnerName()).isEmpty();
         });
     }
@@ -130,13 +132,13 @@ class OngoingMatchTest {
     @Test
     @DisplayName("should return player points")
     void getPoints_validPlayer_returnsPoints() {
-        assertThat(match.getPoints(SECOND_PLAYER_NAME)).isEqualTo(Point.LOVE);
+        assertThat(match.getPoints(SECOND_PLAYER_NAME)).hasValue(Point.LOVE);
     }
 
     @Test
     @DisplayName("should award set and reset games when leading player wins deciding game")
     void scorePoint_atSetPoint_winsSetAndResetsGames() {
-        Game game = new Game(Point.FORTY, Point.LOVE, null);
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
         Set set = new Set(5, 0, game, null);
         OngoingMatch match = new OngoingMatch(FIRST_PLAYER_NAME, SECOND_PLAYER_NAME, 0, 0, set, null);
 
@@ -151,7 +153,7 @@ class OngoingMatchTest {
     @Test
     @DisplayName("should crown winner when player wins required two sets")
     void scorePoint_atMatchPoint_setsWinner() {
-        Game game = new Game(Point.FORTY, Point.LOVE, null);
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
         Set set = new Set(5, 0, game, null);
         OngoingMatch match = new OngoingMatch(FIRST_PLAYER_NAME, SECOND_PLAYER_NAME, 1, 0, set, null);
 
@@ -163,19 +165,21 @@ class OngoingMatchTest {
     @Test
     @DisplayName("should do nothing when scoring a point after match is finished")
     void scorePoint_afterMatchFinished_doesNothing() {
-        Game game = new Game(Point.LOVE, Point.LOVE, null);
+        RegularGame game = new RegularGame(Point.LOVE, Point.LOVE, null);
         Set set = new Set(0, 0, game, null);
         OngoingMatch match = new OngoingMatch(FIRST_PLAYER_NAME, SECOND_PLAYER_NAME, 2, 0, set, Player.FIRST);
 
         match.scorePoint(FIRST_PLAYER_NAME);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(match.getPoints(FIRST_PLAYER_NAME)).isEqualTo(Point.LOVE);
-            softly.assertThat(match.getPoints(SECOND_PLAYER_NAME)).isEqualTo(Point.LOVE);
+            softly.assertThat(match.getPoints(FIRST_PLAYER_NAME)).hasValue(Point.LOVE);
+            softly.assertThat(match.getPoints(SECOND_PLAYER_NAME)).hasValue(Point.LOVE);
             softly.assertThat(match.getGames(FIRST_PLAYER_NAME)).isEqualTo(0);
             softly.assertThat(match.getGames(SECOND_PLAYER_NAME)).isEqualTo(0);
             softly.assertThat(match.getSets(FIRST_PLAYER_NAME)).isEqualTo(2);
             softly.assertThat(match.getSets(SECOND_PLAYER_NAME)).isEqualTo(0);
+            softly.assertThat(match.getTiebreakPoints(FIRST_PLAYER_NAME)).isEmpty();
+            softly.assertThat(match.getTiebreakPoints(SECOND_PLAYER_NAME)).isEmpty();
             softly.assertThat(match.getWinnerName()).hasValue(FIRST_PLAYER_NAME);
         });
     }

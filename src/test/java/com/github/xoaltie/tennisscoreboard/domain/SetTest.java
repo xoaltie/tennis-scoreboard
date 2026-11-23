@@ -28,10 +28,12 @@ class SetTest {
     @DisplayName("should initialize games to zero, points to love, and leave winner empty")
     void constructor_default_initializesZeroScore() {
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(set.getPoints(Player.FIRST)).isEqualTo(Point.LOVE);
-            softly.assertThat(set.getPoints(Player.SECOND)).isEqualTo(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.FIRST)).hasValue(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.SECOND)).hasValue(Point.LOVE);
             softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(0);
             softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(0);
+            softly.assertThat(set.getTiebreakPoints(Player.FIRST)).isEmpty();
+            softly.assertThat(set.getTiebreakPoints(Player.SECOND)).isEmpty();
             softly.assertThat(set.getWinner()).isEmpty();
         });
     }
@@ -46,7 +48,7 @@ class SetTest {
     @Test
     @DisplayName("should return current points for player")
     void getPoints_validPlayer_returnsPoints() {
-        assertThat(set.getPoints(Player.SECOND)).isEqualTo(Point.LOVE);
+        assertThat(set.getPoints(Player.SECOND)).hasValue(Point.LOVE);
     }
 
     @Test
@@ -72,16 +74,18 @@ class SetTest {
     @Test
     @DisplayName("should award game and reset points when player wins game")
     void scorePoint_atGamePoint_winsGameAndResetsPoints() {
-        Game game = new Game(Point.FORTY, Point.LOVE, null);
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
         Set set = new Set(0, 0, game, null);
 
         set.scorePoint(Player.FIRST);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(set.getPoints(Player.FIRST)).isEqualTo(Point.LOVE);
-            softly.assertThat(set.getPoints(Player.SECOND)).isEqualTo(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.FIRST)).hasValue(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.SECOND)).hasValue(Point.LOVE);
             softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(1);
             softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(0);
+            softly.assertThat(set.getTiebreakPoints(Player.FIRST)).isEmpty();
+            softly.assertThat(set.getTiebreakPoints(Player.SECOND)).isEmpty();
             softly.assertThat(set.getWinner()).isEmpty();
         });
     }
@@ -89,7 +93,7 @@ class SetTest {
     @Test
     @DisplayName("should set winner when scoring point at set point")
     void scorePoint_atSetPoint_setsWinner() {
-        Game game = new Game(Point.FORTY, Point.LOVE, null);
+        RegularGame game = new RegularGame(Point.FORTY, Point.LOVE, null);
         Set set = new Set(5, 0, game, null);
 
         set.scorePoint(Player.FIRST);
@@ -103,15 +107,17 @@ class SetTest {
     @Test
     @DisplayName("should do nothing when scoring point after set is finished")
     void scorePoint_afterSetFinished_doesNothing() {
-        Set set = new Set(0, 6, new Game(), Player.SECOND);
+        Set set = new Set(0, 6, new RegularGame(), Player.SECOND);
 
         set.scorePoint(Player.FIRST);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(set.getPoints(Player.FIRST)).isEqualTo(Point.LOVE);
-            softly.assertThat(set.getPoints(Player.SECOND)).isEqualTo(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.FIRST)).hasValue(Point.LOVE);
+            softly.assertThat(set.getPoints(Player.SECOND)).hasValue(Point.LOVE);
             softly.assertThat(set.getGames(Player.FIRST)).isEqualTo(0);
             softly.assertThat(set.getGames(Player.SECOND)).isEqualTo(6);
+            softly.assertThat(set.getTiebreakPoints(Player.FIRST)).isEmpty();
+            softly.assertThat(set.getTiebreakPoints(Player.SECOND)).isEmpty();
             softly.assertThat(set.getWinner()).hasValue(Player.SECOND);
         });
     }

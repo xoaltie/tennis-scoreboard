@@ -54,7 +54,7 @@ public class OngoingMatch {
         set.scorePoint(player);
 
         if (set.getWinner().isPresent()) {
-            sets.replace(player, sets.get(player) + 1);
+            sets.put(player, sets.get(player) + 1);
             set = new Set();
         }
 
@@ -84,9 +84,14 @@ public class OngoingMatch {
         return set.getGames(player);
     }
 
-    public Point getPoints(String playerName) {
+    public Optional<Point> getPoints(String playerName) {
         Player player = resolvePlayer(playerName);
         return set.getPoints(player);
+    }
+
+    public Optional<Integer> getTiebreakPoints(String playerName) {
+        Player player = resolvePlayer(playerName);
+        return set.getTiebreakPoints(player);
     }
 
     public Optional<String> getWinnerName() {

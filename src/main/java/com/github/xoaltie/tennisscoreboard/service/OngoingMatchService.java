@@ -7,7 +7,6 @@ import com.github.xoaltie.tennisscoreboard.service.command.MatchCreateCommand;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchCreateCommand;
 import com.github.xoaltie.tennisscoreboard.service.command.OngoingMatchScorePointCommand;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchCreateResult;
-import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchPlayerResult;
 import com.github.xoaltie.tennisscoreboard.service.result.OngoingMatchResult;
 import org.springframework.stereotype.Service;
 
@@ -59,25 +58,6 @@ public class OngoingMatchService {
             matches.remove(pointCommand.id());
         }
 
-        String firstPlayerName = match.getFirstPlayerName();
-        String secondPlayerName = match.getSecondPlayerName();
-        OngoingMatchPlayerResult firstPlayer = new OngoingMatchPlayerResult(
-                firstPlayerName,
-                match.getPoints(firstPlayerName),
-                match.getGames(firstPlayerName),
-                match.getSets(firstPlayerName)
-        );
-        OngoingMatchPlayerResult secondPlayer = new OngoingMatchPlayerResult(
-                secondPlayerName,
-                match.getPoints(secondPlayerName),
-                match.getGames(secondPlayerName),
-                match.getSets(secondPlayerName)
-        );
-
-        return new OngoingMatchResult(
-                firstPlayer,
-                secondPlayer,
-                winnerName.orElse(null)
-        );
+        return mapper.toResult(match);
     }
 }
