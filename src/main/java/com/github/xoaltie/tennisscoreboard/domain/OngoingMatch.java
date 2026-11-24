@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class OngoingMatch {
+    private static final int SETS_TO_WIN = 2;
     @Getter
     private final UUID id;
     @Getter
@@ -33,6 +34,9 @@ public class OngoingMatch {
         if (firstPlayerName.equalsIgnoreCase(secondPlayerName)) {
             throw new IdenticalPlayerNamesException("player names must be different, provided names: first player - %s, second player - %s"
                     .formatted(firstPlayerName, secondPlayerName));
+        }
+        if (firstPlayerSets < 0 || secondPlayerSets < 0) {
+            throw new IllegalArgumentException("sets must not be negative");
         }
 
         this.id = UUID.randomUUID();
@@ -58,7 +62,7 @@ public class OngoingMatch {
             set = new Set();
         }
 
-        if (sets.get(player) == 2) {
+        if (sets.get(player) == SETS_TO_WIN) {
             winner = player;
         }
     }

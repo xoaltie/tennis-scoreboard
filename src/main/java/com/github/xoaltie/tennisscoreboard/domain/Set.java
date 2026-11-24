@@ -6,6 +6,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class Set {
+    private static final int GAMES_TO_WIN = 6;
+    private static final int GAMES_FOR_TIEBREAK = 6;
+    private static final int MAX_GAMES_TO_WIN = 7;
+    private static final int MIN_GAME_DIFFERENCE = 2;
     private final Map<Player, Integer> games = new EnumMap<>(Player.class);
     private Game game;
     private Player winner;
@@ -44,9 +48,9 @@ public class Set {
 
         int current = games.get(player);
         int opposite = games.get(player.opposite());
-        if ((current == 6 && current - opposite >= 2) || current == 7) {
+        if ((current == GAMES_TO_WIN && current - opposite >= MIN_GAME_DIFFERENCE) || current == MAX_GAMES_TO_WIN) {
             winner = player;
-        } else if (current == 6 && opposite == 6) {
+        } else if (current == GAMES_FOR_TIEBREAK && opposite == GAMES_FOR_TIEBREAK) {
             game = new Tiebreak();
         } else {
             game = new RegularGame();

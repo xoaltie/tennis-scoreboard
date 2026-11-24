@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class Tiebreak implements Game {
+    private static final int POINTS_TO_WIN = 7;
+    private static final int MIN_POINT_DIFFERENCE = 2;
     private final Map<Player, Integer> scores = new EnumMap<>(Player.class);
     private Player winner;
 
@@ -35,7 +37,7 @@ public class Tiebreak implements Game {
 
         int current = scores.get(player);
         int opposite = scores.get(player.opposite());
-        if (current >= 7 && current - opposite >= 2) {
+        if (current >= POINTS_TO_WIN && current - opposite >= MIN_POINT_DIFFERENCE) {
             winner = player;
         }
     }
