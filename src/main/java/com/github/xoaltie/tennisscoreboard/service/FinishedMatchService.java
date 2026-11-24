@@ -55,8 +55,8 @@ public class FinishedMatchService {
     public void save(MatchCreateCommand command) {
         Objects.requireNonNull(command, "match create command must not be null");
 
-        Player firstPlayer = findOrCreate(command.firstPlayer());
-        Player secondPlayer = findOrCreate(command.secondPlayer());
+        Player firstPlayer = playerRepository.findOrCreate(command.firstPlayer());
+        Player secondPlayer = playerRepository.findOrCreate(command.secondPlayer());
         Player winner = firstPlayer.getName().equalsIgnoreCase(command.winner()) ? firstPlayer : secondPlayer;
 
         Match newMatch = new Match(
@@ -68,11 +68,4 @@ public class FinishedMatchService {
         matchRepository.save(newMatch);
     }
 
-    private Player findOrCreate(String playerName) {
-        return playerRepository.findByName(playerName)
-                .orElseGet(() -> {
-                    Player newPlayer = new Player(playerName);
-                    return playerRepository.save(newPlayer);
-                });
-    }
 }

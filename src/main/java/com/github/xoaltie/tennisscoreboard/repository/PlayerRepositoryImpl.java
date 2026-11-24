@@ -2,6 +2,7 @@ package com.github.xoaltie.tennisscoreboard.repository;
 
 import com.github.xoaltie.tennisscoreboard.entity.Player;
 import org.hibernate.SessionFactory;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -29,10 +30,20 @@ public class PlayerRepositoryImpl implements PlayerRepository {
     }
 
     @Override
-    public Player save(Player player) {
-        Objects.requireNonNull(player, "player must not be null");
+    public Player findOrCreate(String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        String sql = """
+                INSERT INTO players (name) VALUES (:name)
+                ON CONFLICT (name) DO NOTHING
+                """;
         sessionFactory.getCurrentSession()
-                .persist(player);
-        return player;
+                .createNativeMutationQuery(sql)
+                .setParameter("name", name)
+                .executeUpdate();
+
+        Optional<Player> savedPlayer = findByName(name);
+        return savedPlayer
+                .orElseThrow(() -> new DataRetrievalFailureException("failed to retrieve player '%s' after insert".formatted(name)));
     }
 }
